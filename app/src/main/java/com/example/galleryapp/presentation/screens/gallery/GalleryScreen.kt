@@ -1,16 +1,14 @@
 package com.example.galleryapp.presentation.screens.gallery
 
-import android.util.Log
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -18,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.size.Scale
@@ -37,9 +34,6 @@ fun GalleryScreen(
     navController: NavHostController,
     galleryViewModel: GalleryViewModel = hiltViewModel()
 ) {
-//    LaunchedEffect(key1 = true) {
-//        galleryViewModel.loadImagesData()
-//    }
     Scaffold(
         topBar = {
             GalleryTopBar(onBackClicked = {
@@ -80,7 +74,7 @@ fun ImageGrid(
                 ImageEntry(
                     imageData = imageData,
                     onClicked = {
-                        navController.navigate(Screen.Home.passImageId(imageData.id)){
+                        navController.navigate(Screen.Home.passImageId(imageData.id)) {
                             popUpTo(Screen.Home.route) {
                                 inclusive = true
                             }
@@ -90,59 +84,6 @@ fun ImageGrid(
             }
         }
     }
-
-
-//    LazyColumn(
-////        columns = GridCells.Fixed(count = GALLERY_IMAGES_PER_ROW),
-//        contentPadding = PaddingValues(
-//            horizontal = smallPadding,
-//            vertical = smallPadding
-//        ),
-//        verticalArrangement = Arrangement.spacedBy(mediumSpacing),
-////        horizontalArrangement = Arrangement.spacedBy(mediumSpacing),
-//        modifier = modifier
-//    ) {
-//        items(imgDataItems) {
-//            it?.let { imageData ->
-//                Row(
-//                    horizontalArrangement = Arrangement.spacedBy(mediumSpacing)
-//                ) {
-//                    ImageEntry(
-//                        imageData = imageData,
-//                        onClicked = {
-//                            navController.navigate(Screen.Home.passImageId(imageData.id)){
-//                                popUpTo(Screen.Home.route) {
-//                                    inclusive = true
-//                                }
-//                            }
-//                        }
-//                    )
-//                    ImageEntry(
-//                        imageData = imageData,
-//                        onClicked = {
-//                            navController.navigate(Screen.Home.passImageId(imageData.id)){
-//                                popUpTo(Screen.Home.route) {
-//                                    inclusive = true
-//                                }
-//                            }
-//                        }
-//                    )
-//                    ImageEntry(
-//                        imageData = imageData,
-//                        onClicked = {
-//                            navController.navigate(Screen.Home.passImageId(imageData.id)){
-//                                popUpTo(Screen.Home.route) {
-//                                    inclusive = true
-//                                }
-//                            }
-//                        }
-//                    )
-//                }
-//
-//            }
-//        }
-//    }
-
 
 }
 

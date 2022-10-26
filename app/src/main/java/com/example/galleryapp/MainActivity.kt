@@ -5,7 +5,6 @@ import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
@@ -14,7 +13,6 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.galleryapp.navigation.SetupNavGraph
 import com.example.galleryapp.ui.theme.GalleryAppTheme
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController

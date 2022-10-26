@@ -5,8 +5,6 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import androidx.paging.PagingSource.LoadParams
-import androidx.paging.PagingSource.LoadResult
 import com.example.galleryapp.domain.storage.ImageData
 import com.example.galleryapp.domain.storage.LocalStorage
 import kotlinx.coroutines.Dispatchers

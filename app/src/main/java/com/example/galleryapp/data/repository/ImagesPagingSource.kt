@@ -21,7 +21,7 @@ class ImagesPagingSource @Inject constructor(
         return try {
             val images: MutableList<ImageData> = mutableListOf()
             localStorage.getAllImagesData(
-                imagesOffset =  position,
+                imagesOffset = position,
                 imagesLimit = params.loadSize
             ).collect { imageDataList ->
                 images.addAll(imageDataList)
