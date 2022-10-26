@@ -2,18 +2,17 @@ package com.example.galleryapp.data.storage
 
 import android.content.ContentUris
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import android.util.Size
-import androidx.annotation.RequiresApi
+import androidx.paging.PagingSource.LoadParams
+import androidx.paging.PagingSource.LoadResult
 import com.example.galleryapp.domain.storage.ImageData
 import com.example.galleryapp.domain.storage.LocalStorage
-import com.example.galleryapp.util.Constants.DEFAULT_THUMBNAIL_HEIGHT
-import com.example.galleryapp.util.Constants.DEFAULT_THUMBNAIL_WIDTH
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 class LocalStorageImpl(
@@ -21,8 +20,10 @@ class LocalStorageImpl(
 ) : LocalStorage {
 
     override suspend fun getAllImagesData(
-        imageId: String?
-    ): List<ImageData> {
+        imagesOffset: Int,
+        imagesLimit: Int,
+        imageId: String?,
+    ): Flow<List<ImageData>> = flow {
         val imgList: MutableList<ImageData> = mutableListOf()
 
         withContext(Dispatchers.IO) {
@@ -43,8 +44,8 @@ class LocalStorageImpl(
 
             val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
 
-            val selection = imageId?.let { "${MediaStore.Images.Media._ID} = ?"}
-            val selectionArgs = imageId?.let { arrayOf(imageId)}
+            val selection = imageId?.let { "${MediaStore.Images.Media._ID} = ?" }
+            val selectionArgs = imageId?.let { arrayOf(imageId) }
 
             val query = context.contentResolver.query(
                 collection,
@@ -58,7 +59,9 @@ class LocalStorageImpl(
                 val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
                 val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
 
-                while (cursor.moveToNext()) {
+                cursor.moveToPosition(imagesOffset)
+
+                while (cursor.moveToNext() && cursor.position <= imagesOffset + imagesLimit) {
                     // Get values of columns for a given image.
                     val id = cursor.getLong(idColumn)
                     val name = cursor.getString(nameColumn)
@@ -80,12 +83,39 @@ class LocalStorageImpl(
                 }
             }
         }
-        return imgList
+        emit(imgList)
+//        return imgList
     }
 
-    override suspend fun getImageData(imageId: String): ImageData? {
-        return getAllImagesData(imageId = imageId).getOrNull(0)
+    override suspend fun getImageData(imageId: String): Flow<ImageData?> {
+        return getAllImagesData(
+            imageId = imageId,
+            imagesOffset = -1,
+            imagesLimit = 1
+        ).map {
+            it.getOrNull(0)
+        }
     }
+
+//    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ImageData> {
+//        val position = params.key ?: 0
+//        return try {
+//            val images: MutableList<ImageData> = mutableListOf()
+//            getAllImagesData(
+//                imagesOffset =  position,
+//                imagesLimit = params.loadSize
+//            ).collect { imageDataList ->
+//                images.addAll(imageDataList)
+//            }
+//            LoadResult.Page(
+//                data = images,
+//                prevKey = if (position == 0) null else position,
+//                nextKey = if (images.isEmpty()) null else position + params.loadSize
+//            )
+//        } catch (exception: Exception) {
+//            LoadResult.Error(exception)
+//        }
+//    }
 
 
 }

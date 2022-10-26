@@ -1,6 +1,7 @@
 package com.example.galleryapp.di
 
 import android.content.Context
+import com.example.galleryapp.data.repository.ImagesPagingSource
 import com.example.galleryapp.data.storage.LocalStorageImpl
 import com.example.galleryapp.domain.storage.LocalStorage
 import com.example.galleryapp.domain.use_cases.UseCases
@@ -25,9 +26,14 @@ object LocalStorageModule {
 
     @Provides
     @Singleton
-    fun provideUseCases(localStorage: LocalStorage): UseCases {
+    fun provideUseCases(
+        localStorage: LocalStorage,
+        imagesPagingSource: ImagesPagingSource
+    ): UseCases {
         return UseCases(
-            getAllImagesDataUseCase = GetAllImagesDataUseCase(localStorage = localStorage),
+            getAllImagesDataUseCase = GetAllImagesDataUseCase(
+                imagesPagingSource = imagesPagingSource
+            ),
             getImageDataUseCase = GetImageDataUseCase(localStorage = localStorage)
         )
     }
