@@ -9,7 +9,7 @@ import com.example.galleryapp.R
 
 @Composable
 fun GalleryTopBar(
-    onBackClicked: () -> Unit
+    onBackClick: () -> Unit
 ) {
     TopAppBar(
         title = {
@@ -20,7 +20,7 @@ fun GalleryTopBar(
         },
         backgroundColor = MaterialTheme.colors.primary,
         navigationIcon = {
-            IconButton(onClick = onBackClicked) {
+            IconButton(onClick = onBackClick) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = stringResource(R.string.back)

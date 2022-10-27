@@ -6,6 +6,16 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        release {
+            keyPassword 'deformation'
+            keyAlias 'key0'
+            storeFile file('C:\\Users\\Admin\\keyStore.jks')
+            storePassword 'deformation'
+        }
+        debug1 {
+        }
+    }
     namespace 'com.example.galleryapp'
     compileSdk 32
 
@@ -24,8 +34,10 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
@@ -75,6 +87,11 @@ dependencies {
     // Paging 3
     implementation "androidx.paging:paging-runtime:3.1.1"
     implementation "androidx.paging:paging-compose:1.0.0-alpha15"
+
+    // CameraX
+    implementation "androidx.camera:camera-camera2:1.1.0"
+    implementation "androidx.camera:camera-lifecycle:1.1.0"
+    implementation 'androidx.camera:camera-view:1.1.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

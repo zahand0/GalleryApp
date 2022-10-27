@@ -1,7 +1,6 @@
 package com.example.galleryapp
 
-import android.Manifest.permission.ACCESS_MEDIA_LOCATION
-import android.Manifest.permission.READ_EXTERNAL_STORAGE
+import android.Manifest.permission.*
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -33,6 +32,12 @@ class MainActivity : ComponentActivity() {
             ActivityResultContracts.RequestMultiplePermissions()
         ) {}
 
+//        ActivityCompat.requestPermissions(
+//            this,
+//            arrayOf(CAMERA),
+//            101
+//        )
+
         requestPermissions()
 
         setContent {
@@ -48,6 +53,10 @@ class MainActivity : ComponentActivity() {
         permissions[READ_EXTERNAL_STORAGE] = ContextCompat.checkSelfPermission(
             this.applicationContext,
             READ_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED
+        permissions[CAMERA] = ContextCompat.checkSelfPermission(
+            this.applicationContext,
+            CAMERA
         ) == PackageManager.PERMISSION_GRANTED
         if (Build.VERSION.SDK_INT >= 29) {
             permissions[ACCESS_MEDIA_LOCATION] = ContextCompat.checkSelfPermission(

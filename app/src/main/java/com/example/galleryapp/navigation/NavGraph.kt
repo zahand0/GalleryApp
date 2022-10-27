@@ -1,6 +1,8 @@
 package com.example.galleryapp.navigation
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -21,7 +23,13 @@ fun SetupNavGraph(
         startDestination = Screen.Home.route
     ) {
         composable(
-            route = Screen.Gallery.route
+            route = Screen.Gallery.route,
+            enterTransition = {
+                slideInHorizontally(initialOffsetX = { it })
+            },
+            exitTransition = {
+                slideOutHorizontally { it }
+            }
         ) {
             GalleryScreen(navController = navController)
         }
