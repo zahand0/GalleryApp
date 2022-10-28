@@ -1,13 +1,13 @@
 package com.example.galleryapp.presentation.screens.photo
 
 import androidx.camera.core.ImageCapture
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.camera.view.PreviewView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.galleryapp.navigation.Screen
+import com.example.galleryapp.presentation.widgets.BackHandler
 import com.example.galleryapp.presentation.widgets.CameraView
 import java.util.concurrent.Executor
 
@@ -20,10 +20,19 @@ fun PhotoScreen(
 ) {
     val imageUri = photoViewModel.imageUri.collectAsState()
     val imageCreated = photoViewModel.imageCreated.collectAsState()
+    BackHandler(
+        onBack = {
+            navController.navigate(
+                Screen.Gallery.route
+            ) {
+                popUpTo(Screen.Home.route) {
+                }
+            }
+        }
+    )
 
     CameraView(
-        modifier = Modifier
-            .fillMaxSize()
+        scaleType = PreviewView.ScaleType.FIT_CENTER
     ) { imageCapture ->
         photoViewModel.takePhoto(
             imageCapture = imageCapture,

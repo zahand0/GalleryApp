@@ -2,6 +2,7 @@ package com.example.galleryapp.presentation.screens.gallery
 
 import android.content.Context
 import android.util.Log
+import androidx.camera.view.PreviewView
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
@@ -12,6 +13,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,7 +24,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -37,6 +42,7 @@ import com.example.galleryapp.presentation.widgets.CameraView
 import com.example.galleryapp.presentation.widgets.DialogBox
 import com.example.galleryapp.presentation.widgets.RequestPermissions
 import com.example.galleryapp.presentation.widgets.rememberRequestPermissionsState
+import com.example.galleryapp.ui.theme.errorColor
 import com.example.galleryapp.ui.theme.mediumSpacing
 import com.example.galleryapp.ui.theme.smallPadding
 import com.example.galleryapp.util.Constants.DEFAULT_THUMBNAIL_HEIGHT
@@ -94,7 +100,7 @@ fun ImageGrid(
         mutableStateOf(false)
     }
     var cameraAvailable by remember {
-        mutableStateOf(false)
+        galleryViewModel.cameraAvailable
     }
 
     LaunchedEffect(key1 = callRequestPermission) {
@@ -144,7 +150,9 @@ fun ImageGrid(
         modifier = modifier
     ) {
         item {
-            CameraPreview {
+            CameraPreview(
+                cameraAvailable = cameraAvailable
+            ) {
                 multiplePermissionsState.request = true
                 callRequestPermission = true
             }
@@ -153,6 +161,8 @@ fun ImageGrid(
         items(imgDataItems.itemCount) { index ->
             imgDataItems[index]?.let { imageData ->
                 ImageThumbnail(
+                    modifier = Modifier
+                        .background(MaterialTheme.colors.surface),
                     imageData = imageData,
                     onClick = {
                         navController.navigate(Screen.Home.passImageId(imageData.id)) {
@@ -198,36 +208,87 @@ fun ImageThumbnail(
 @Composable
 fun CameraPreview(
     modifier: Modifier = Modifier,
+    cameraAvailable: Boolean,
     onClick: () -> Unit
 ) {
     Box(modifier = modifier
         .size(120.dp)
         .clickable { onClick() }
     ) {
-        CameraView()
+        if (cameraAvailable) {
+            CameraView(
+                scaleType = PreviewView.ScaleType.FILL_CENTER
+            )
+            Box(
+                modifier = Modifier
+                    .background(Color.Black.copy(alpha = 0.4f))
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_camera),
+                    contentDescription = stringResource(R.string.camera),
+                    tint = Color.White,
+                    modifier = Modifier
+                        .blur(
+                            radius = 6.dp
+                        )
+                        .padding(18.dp)
+                )
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_camera),
+                    contentDescription = stringResource(R.string.camera),
+                    tint = Color.White,
+                    modifier = Modifier
+                        .fillMaxSize(0.7f)
+                )
+            }
+        } else {
+            WarningCameraPreview()
+        }
+    }
+}
+
+@Preview
+@Composable
+fun WarningCameraPreview() {
+    Column(
+        modifier = Modifier
+            .background(Color.Black.copy(alpha = 0.4f))
+            .size(120.dp)
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
         Box(
             modifier = Modifier
-                .background(Color.Black.copy(alpha = 0.4f))
-                .fillMaxSize(),
+                .size(60.dp),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_camera),
-                contentDescription = stringResource(R.string.camera),
+                contentDescription = stringResource(R.string.warning),
                 tint = Color.White,
                 modifier = Modifier
-                    .blur(
-                        radius = 6.dp
-                    )
-                    .padding(18.dp)
+                    .size(50.dp)
             )
             Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.ic_camera),
-                contentDescription = stringResource(R.string.camera),
-                tint = Color.White,
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_warning),
+                contentDescription = stringResource(R.string.warning),
                 modifier = Modifier
-                    .fillMaxSize(0.7f)
+                    .size(30.dp)
+                    .offset(
+                        28.dp,
+                        (-10).dp
+                    ),
+                tint = MaterialTheme.colors.errorColor
             )
         }
+        Text(
+            text = stringResource(R.string.camera_warning), color = Color.White,
+            modifier = Modifier.padding(horizontal = 6.dp),
+            textAlign = TextAlign.Center,
+            fontSize = 12.sp
+        )
     }
 }

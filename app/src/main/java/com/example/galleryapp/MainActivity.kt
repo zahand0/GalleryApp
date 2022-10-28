@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun getOutputOptions(): ImageCapture.OutputFileOptions {
-        val fileName = SimpleDateFormat(
+        val fileName = "photo" + SimpleDateFormat(
             "yyyy-MM-dd-HH-mm-ss-SSS",
             Locale.getDefault()
         ).format(System.currentTimeMillis())

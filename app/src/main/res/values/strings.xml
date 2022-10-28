@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">GalleryApp</string>
+    <string name="app_name">Gallery App</string>
     <string name="back">Back</string>
     <string name="gallery">Gallery</string>
     <string name="camera">Camera</string>
@@ -7,6 +7,9 @@
     <string name="settings">Settings</string>
     <string name="later">I\'ll Do It Later</string>
     <string name="photos_access_prompt">Give access to your Photos and Videos to use gallery.</string>
-    <string name="camera_access_prompt">Give access to your Camera to take pictures and see camera preview.</string>
+    <string name="camera_access_prompt">Give access to your Camera to take pictures and see Camera preview.</string>
     <string name="camera_permission">Camera permission</string>
+    <string name="camera_warning">Tap to allow access to your Camera</string>
+    <string name="warning">Warning</string>
+    <string name="home_image">Home image</string>
 </resources>

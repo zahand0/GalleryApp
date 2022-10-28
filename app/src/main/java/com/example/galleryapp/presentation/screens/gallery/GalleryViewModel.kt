@@ -2,6 +2,7 @@ package com.example.galleryapp.presentation.screens.gallery
 
 import android.Manifest
 import android.os.Build
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -21,6 +22,8 @@ class GalleryViewModel @Inject constructor(
     )
     val permissionsList: List<String> = _permissionsList
 
+    val cameraAvailable = mutableStateOf(false)
+
     init {
         if (Build.VERSION.SDK_INT <= 28) {
             _permissionsList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -30,7 +33,10 @@ class GalleryViewModel @Inject constructor(
     val imageDataFlow = Pager(
         // Configure how data is loaded by passing additional properties to
         // PagingConfig, such as prefetchDistance.
-        PagingConfig(pageSize = 60)
+        PagingConfig(
+            pageSize = 80,
+            initialLoadSize = 120
+        )
     ) {
         imagesPagingSource
     }.flow

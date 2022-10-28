@@ -1,9 +1,7 @@
 package com.example.galleryapp.navigation
 
 import androidx.camera.core.ImageCapture
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.*
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -14,6 +12,8 @@ import com.example.galleryapp.presentation.screens.photo.PhotoScreen
 import com.example.galleryapp.util.Constants.DETAILS_ARGUMENT_KEY
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
+import com.google.accompanist.systemuicontroller.SystemUiController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import java.util.concurrent.Executor
 
 @ExperimentalAnimationApi
@@ -23,6 +23,7 @@ fun SetupNavGraph(
     outputOptions: ImageCapture.OutputFileOptions,
     executor: Executor
 ) {
+    val systemUiController: SystemUiController = rememberSystemUiController()
     AnimatedNavHost(
         navController = navController,
         startDestination = Screen.Home.route
@@ -48,7 +49,15 @@ fun SetupNavGraph(
             HomeScreen(navController = navController)
         }
         composable(
-            route = Screen.Photo.route
+            route = Screen.Photo.route,
+            enterTransition = {
+                systemUiController.isStatusBarVisible = false
+                fadeIn()
+            },
+            exitTransition = {
+                systemUiController.isStatusBarVisible = true
+                fadeOut()
+            }
         ) {
             PhotoScreen(
                 navController = navController,
