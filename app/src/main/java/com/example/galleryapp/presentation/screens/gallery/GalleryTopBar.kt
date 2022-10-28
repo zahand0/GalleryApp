@@ -15,15 +15,16 @@ fun GalleryTopBar(
         title = {
             Text(
                 text = "Gallery",
-                color = MaterialTheme.colors.onPrimary
+                color = MaterialTheme.colors.onSurface
             )
         },
-        backgroundColor = MaterialTheme.colors.primary,
+        backgroundColor = MaterialTheme.colors.surface,
         navigationIcon = {
             IconButton(onClick = onBackClick) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
-                    contentDescription = stringResource(R.string.back)
+                    contentDescription = stringResource(R.string.back),
+                    tint = MaterialTheme.colors.primaryVariant
                 )
             }
         }

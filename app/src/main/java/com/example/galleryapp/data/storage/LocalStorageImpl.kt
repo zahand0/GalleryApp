@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
 import com.example.galleryapp.domain.storage.ImageData
 import com.example.galleryapp.domain.storage.LocalStorage
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +21,7 @@ class LocalStorageImpl(
     override suspend fun getAllImagesData(
         imagesOffset: Int,
         imagesLimit: Int,
-        imageId: String?,
+        selection: String?,
     ): Flow<List<ImageData>> = flow {
         val imgList: MutableList<ImageData> = mutableListOf()
 
@@ -42,14 +43,11 @@ class LocalStorageImpl(
 
             val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
 
-            val selection = imageId?.let { "${MediaStore.Images.Media._ID} = ?" }
-            val selectionArgs = imageId?.let { arrayOf(imageId) }
-
             val query = context.contentResolver.query(
                 collection,
                 projection,
                 selection,
-                selectionArgs,
+                null,
                 sortOrder
             )
             query?.use { cursor ->
@@ -82,12 +80,12 @@ class LocalStorageImpl(
             }
         }
         emit(imgList)
-//        return imgList
     }
 
-    override suspend fun getImageData(imageId: String): Flow<ImageData?> {
+    override suspend fun getImageDataById(imageId: String): Flow<ImageData?> {
+        val selection = "${MediaStore.Images.Media._ID} = $imageId"
         return getAllImagesData(
-            imageId = imageId,
+            selection = selection,
             imagesOffset = -1,
             imagesLimit = 1
         ).map {
@@ -95,25 +93,16 @@ class LocalStorageImpl(
         }
     }
 
-//    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ImageData> {
-//        val position = params.key ?: 0
-//        return try {
-//            val images: MutableList<ImageData> = mutableListOf()
-//            getAllImagesData(
-//                imagesOffset =  position,
-//                imagesLimit = params.loadSize
-//            ).collect { imageDataList ->
-//                images.addAll(imageDataList)
-//            }
-//            LoadResult.Page(
-//                data = images,
-//                prevKey = if (position == 0) null else position,
-//                nextKey = if (images.isEmpty()) null else position + params.loadSize
-//            )
-//        } catch (exception: Exception) {
-//            LoadResult.Error(exception)
-//        }
-//    }
-
+    override suspend fun getImageDataByName(imageName: String): Flow<ImageData?> {
+        Log.d("LocalStorageImpl", "getImageData: imageName: $imageName")
+        val selection = "${MediaStore.Images.Media.DISPLAY_NAME} = $imageName"
+        return getAllImagesData(
+            selection = selection,
+            imagesOffset = -1,
+            imagesLimit = 1
+        ).map {
+            it.getOrNull(0)
+        }
+    }
 
 }

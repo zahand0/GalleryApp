@@ -6,8 +6,9 @@ interface LocalStorage {
     suspend fun getAllImagesData(
         imagesOffset: Int,
         imagesLimit: Int,
-        imageId: String? = null
+        selection: String? = null
     ): Flow<List<ImageData>>
 
-    suspend fun getImageData(imageId: String): Flow<ImageData?>
+    suspend fun getImageDataById(imageId: String): Flow<ImageData?>
+    suspend fun getImageDataByName(imageName: String): Flow<ImageData?>
 }

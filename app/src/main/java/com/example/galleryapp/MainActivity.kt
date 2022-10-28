@@ -1,21 +1,23 @@
 package com.example.galleryapp
 
-import android.Manifest.permission.*
-import android.content.pm.PackageManager
-import android.os.Build
+import android.content.ContentValues
 import android.os.Bundle
+import android.provider.MediaStore
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.ImageCapture
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.example.galleryapp.navigation.SetupNavGraph
 import com.example.galleryapp.ui.theme.GalleryAppTheme
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import dagger.hilt.android.AndroidEntryPoint
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 @ExperimentalAnimationApi
 @AndroidEntryPoint
@@ -23,7 +25,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var navController: NavHostController
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
-
+    private lateinit var cameraExecutor: ExecutorService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,52 +34,38 @@ class MainActivity : ComponentActivity() {
             ActivityResultContracts.RequestMultiplePermissions()
         ) {}
 
-//        ActivityCompat.requestPermissions(
-//            this,
-//            arrayOf(CAMERA),
-//            101
-//        )
-
-        requestPermissions()
-
+        cameraExecutor = Executors.newSingleThreadExecutor()
         setContent {
             GalleryAppTheme {
                 navController = rememberAnimatedNavController()
-                SetupNavGraph(navController = navController)
+                SetupNavGraph(
+                    navController = navController,
+                    outputOptions = getOutputOptions(),
+                    executor = cameraExecutor
+                )
             }
         }
     }
 
-    private fun checkPermissions(): Map<String, Boolean> {
-        val permissions = mutableMapOf<String, Boolean>()
-        permissions[READ_EXTERNAL_STORAGE] = ContextCompat.checkSelfPermission(
-            this.applicationContext,
-            READ_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED
-        permissions[CAMERA] = ContextCompat.checkSelfPermission(
-            this.applicationContext,
-            CAMERA
-        ) == PackageManager.PERMISSION_GRANTED
-        if (Build.VERSION.SDK_INT >= 29) {
-            permissions[ACCESS_MEDIA_LOCATION] = ContextCompat.checkSelfPermission(
-                this.applicationContext,
-                ACCESS_MEDIA_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        }
-        return permissions
+    private fun getOutputOptions(): ImageCapture.OutputFileOptions {
+        val fileName = SimpleDateFormat(
+            "yyyy-MM-dd-HH-mm-ss-SSS",
+            Locale.getDefault()
+        ).format(System.currentTimeMillis())
+
+        val contentValues = ContentValues()
+        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+
+        return ImageCapture.OutputFileOptions.Builder(
+            contentResolver,
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            contentValues
+        ).build()
     }
 
-    private fun requestPermissions() {
-        val requiredPermissions = checkPermissions().filter { (_: String, isGranted: Boolean) ->
-            !isGranted
-        }.keys.toTypedArray()
-        if (requiredPermissions.isNotEmpty()) {
-            ActivityCompat.requestPermissions(
-                this,
-                requiredPermissions,
-                101
-            )
-        }
+    override fun onDestroy() {
+        super.onDestroy()
+        cameraExecutor.shutdown()
     }
-
 }

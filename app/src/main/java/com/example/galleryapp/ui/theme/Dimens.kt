@@ -13,5 +13,5 @@ val mediumSpacing = 8.dp
 val buttonDefaultElevation = 16.dp
 val buttonPressedElevation = 12.dp
 
-val defaultFontSize = 18.sp
+val defaultFontSize = 16.sp
 val bigFontSize = 20.sp

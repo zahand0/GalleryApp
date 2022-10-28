@@ -6,7 +6,8 @@ import com.example.galleryapp.data.storage.LocalStorageImpl
 import com.example.galleryapp.domain.storage.LocalStorage
 import com.example.galleryapp.domain.use_cases.UseCases
 import com.example.galleryapp.domain.use_cases.get_all_images.GetAllImagesDataUseCase
-import com.example.galleryapp.domain.use_cases.get_image.GetImageDataUseCase
+import com.example.galleryapp.domain.use_cases.get_image.GetImageDataByIdUseCase
+import com.example.galleryapp.domain.use_cases.get_image.GetImageDataByNameUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,7 +35,8 @@ object LocalStorageModule {
             getAllImagesDataUseCase = GetAllImagesDataUseCase(
                 imagesPagingSource = imagesPagingSource
             ),
-            getImageDataUseCase = GetImageDataUseCase(localStorage = localStorage)
+            getImageDataByIdUseCase = GetImageDataByIdUseCase(localStorage = localStorage),
+            getImageDataByNameUseCase = GetImageDataByNameUseCase(localStorage = localStorage),
         )
     }
 }

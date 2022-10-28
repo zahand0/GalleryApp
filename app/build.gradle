@@ -1,8 +1,8 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-    id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -92,6 +92,15 @@ dependencies {
     implementation "androidx.camera:camera-camera2:1.1.0"
     implementation "androidx.camera:camera-lifecycle:1.1.0"
     implementation 'androidx.camera:camera-view:1.1.0'
+
+    // Icons
+    implementation "androidx.compose.material:material-icons-extended:$compose_ui_version"
+
+    // System UI Controller - Accompanist
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.25.1"
+
+    // Permissions - Accompanist
+    implementation "com.google.accompanist:accompanist-permissions:0.25.1"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

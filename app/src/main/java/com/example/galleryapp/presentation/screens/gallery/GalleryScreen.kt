@@ -1,10 +1,7 @@
 package com.example.galleryapp.presentation.screens.gallery
 
+import android.content.Context
 import android.util.Log
-import android.view.ViewGroup
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.Preview
-import androidx.camera.view.PreviewView
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
@@ -13,21 +10,19 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -38,13 +33,16 @@ import coil.size.Size
 import com.example.galleryapp.R
 import com.example.galleryapp.domain.storage.ImageData
 import com.example.galleryapp.navigation.Screen
+import com.example.galleryapp.presentation.widgets.CameraView
+import com.example.galleryapp.presentation.widgets.DialogBox
+import com.example.galleryapp.presentation.widgets.RequestPermissions
+import com.example.galleryapp.presentation.widgets.rememberRequestPermissionsState
 import com.example.galleryapp.ui.theme.mediumSpacing
 import com.example.galleryapp.ui.theme.smallPadding
 import com.example.galleryapp.util.Constants.DEFAULT_THUMBNAIL_HEIGHT
 import com.example.galleryapp.util.Constants.DEFAULT_THUMBNAIL_WIDTH
 import com.example.galleryapp.util.Constants.GALLERY_IMAGES_PER_ROW
-import com.example.galleryapp.util.getCameraProvider
-import kotlinx.coroutines.launch
+import com.example.galleryapp.util.navigateToAppSettings
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -66,8 +64,10 @@ fun GalleryScreen(
             ImageGrid(
                 galleryViewModel = galleryViewModel,
                 navController = navController,
+                context = LocalContext.current,
                 modifier = modifier
                     .padding(padding)
+                    .background(MaterialTheme.colors.background)
             )
         }
     }
@@ -77,10 +77,61 @@ fun GalleryScreen(
 fun ImageGrid(
     galleryViewModel: GalleryViewModel,
     navController: NavHostController,
+    context: Context,
     modifier: Modifier = Modifier
 ) {
 
     val imgDataItems = galleryViewModel.imageDataFlow.collectAsLazyPagingItems()
+
+    val multiplePermissionsState = rememberRequestPermissionsState(
+        initRequest = true,
+        permissions = galleryViewModel.permissionsList
+    )
+    var callRequestPermission by remember {
+        mutableStateOf(true)
+    }
+    var showDialog by remember {
+        mutableStateOf(false)
+    }
+    var cameraAvailable by remember {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(key1 = callRequestPermission) {
+        Log.d("GalleryScreen", "callRequestPermission: $callRequestPermission")
+    }
+
+    if (callRequestPermission) {
+        RequestPermissions(
+            context = context,
+            requestState = multiplePermissionsState,
+            permissionsGrantedCase = {
+                if (cameraAvailable) {
+                    navController.navigate(Screen.Photo.route)
+                }
+                cameraAvailable = true
+            },
+            permissionsDeniedCase = {
+                callRequestPermission = false
+                showDialog = true
+            }
+        )
+    }
+
+    if (showDialog) {
+        DialogBox(
+            title = stringResource(R.string.camera_permission),
+            description = stringResource(R.string.camera_access_prompt),
+            acceptString = stringResource(R.string.settings),
+            deniedString = stringResource(R.string.later),
+            onDismiss = {
+                showDialog = false
+            },
+            onSettingsClick = {
+                context.navigateToAppSettings()
+            }
+        )
+    }
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(count = GALLERY_IMAGES_PER_ROW),
@@ -92,10 +143,10 @@ fun ImageGrid(
         horizontalArrangement = Arrangement.spacedBy(mediumSpacing),
         modifier = modifier
     ) {
-
         item {
-            CameraMinimizePreview {
-
+            CameraPreview {
+                multiplePermissionsState.request = true
+                callRequestPermission = true
             }
         }
 
@@ -114,7 +165,6 @@ fun ImageGrid(
             }
         }
     }
-
 }
 
 @Composable
@@ -148,57 +198,13 @@ fun ImageThumbnail(
 @Composable
 fun CameraPreview(
     modifier: Modifier = Modifier,
-    scaleType: PreviewView.ScaleType = PreviewView.ScaleType.FILL_CENTER,
-    cameraSelector: CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-) {
-    val coroutineScope = rememberCoroutineScope()
-    val lifecycleOwner = LocalLifecycleOwner.current
-    AndroidView(
-        modifier = modifier,
-        factory = { context ->
-            val previewView = PreviewView(context).apply {
-                this.scaleType = scaleType
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
-            }
-
-            // CameraX Preview UseCase
-            val previewUseCase = Preview.Builder()
-                .build()
-                .also {
-                    it.setSurfaceProvider(previewView.surfaceProvider)
-                }
-
-            coroutineScope.launch {
-                val cameraProvider = context.getCameraProvider()
-                try {
-                    // Must unbind the use-cases before rebinding them.
-                    cameraProvider.unbindAll()
-                    cameraProvider.bindToLifecycle(
-                        lifecycleOwner, cameraSelector, previewUseCase
-                    )
-                } catch (ex: Exception) {
-                    Log.e("CameraPreview", "Use case binding failed", ex)
-                }
-            }
-
-            previewView
-        }
-    )
-}
-
-@Composable
-fun CameraMinimizePreview(
-    modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Box(modifier = modifier
         .size(120.dp)
         .clickable { onClick() }
     ) {
-        CameraPreview()
+        CameraView()
         Box(
             modifier = Modifier
                 .background(Color.Black.copy(alpha = 0.4f))
@@ -210,9 +216,18 @@ fun CameraMinimizePreview(
                 contentDescription = stringResource(R.string.camera),
                 tint = Color.White,
                 modifier = Modifier
+                    .blur(
+                        radius = 6.dp
+                    )
+                    .padding(18.dp)
+            )
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_camera),
+                contentDescription = stringResource(R.string.camera),
+                tint = Color.White,
+                modifier = Modifier
                     .fillMaxSize(0.7f)
             )
         }
     }
-
 }

@@ -4,10 +4,11 @@ import com.example.galleryapp.domain.storage.ImageData
 import com.example.galleryapp.domain.storage.LocalStorage
 import kotlinx.coroutines.flow.Flow
 
-class GetImageDataUseCase(
+class GetImageDataByNameUseCase(
     private val localStorage: LocalStorage
 ) {
-    suspend operator fun invoke(imageId: String): Flow<ImageData?> {
-        return localStorage.getImageData(imageId = imageId)
+    suspend operator fun invoke(imageName: String): Flow<ImageData?> {
+        return localStorage.getImageDataByName(imageName = imageName)
     }
+
 }

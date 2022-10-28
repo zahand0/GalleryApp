@@ -5,17 +5,23 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 private val DarkColorPalette = darkColors(
     primary = Purple200,
-    primaryVariant = Purple700,
-    secondary = Teal200
+    primaryVariant = Purple200,
+    secondary = Purple500,
+    background = DarkGrey,
+    surface = DarkGrey
 )
 
 private val LightColorPalette = lightColors(
-    primary = Purple500,
-    primaryVariant = Purple700,
-    secondary = Teal200
+    primary = Red500,
+    primaryVariant = Red700,
+    secondary = Red100,
+    background = LightCream300,
+    surface = LightCream400
 
     /* Other default colors to override
     background = Color.White,
@@ -35,6 +41,13 @@ fun GalleryAppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Compos
         LightColorPalette
     }
 
+    val systemUiController = rememberSystemUiController()
+    LaunchedEffect(key1 = systemUiController) {
+        systemUiController.setStatusBarColor(
+            color = colors.surface,
+            darkIcons = !darkTheme
+        )
+    }
     MaterialTheme(
         colors = colors,
         typography = Typography,
